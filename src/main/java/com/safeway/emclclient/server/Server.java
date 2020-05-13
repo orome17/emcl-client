@@ -9,6 +9,7 @@ public class Server
     private Socket          socket   = null;
     private ServerSocket    server   = null;
     private DataInputStream in       =  null;
+    private DataOutputStream out       =  null;
 
     // constructor with port
     public Server(int port)
@@ -28,6 +29,9 @@ public class Server
             in = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
+            out = new DataOutputStream(
+                    new BufferedOutputStream(socket.getOutputStream()));
+
             byte[] buffer = new byte[1000];
 
             while (true) {
@@ -39,6 +43,9 @@ public class Server
                     if (size != -1 && size != 0) {
                         System.out.println(size);
                         System.out.println(new String(buffer));
+                        byte[] response = "OKAY".getBytes();
+                        out.write(response);
+                        out.flush();
                     }
                 } catch(IOException i) {
                     System.out.println(i);

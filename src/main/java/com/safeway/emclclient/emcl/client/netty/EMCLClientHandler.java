@@ -34,7 +34,6 @@ public class EMCLClientHandler extends ChannelOutboundHandlerAdapter {
 
         ByteBuf bb = Unpooled.copiedBuffer((byte[])msg);
         ctx.writeAndFlush(bb, promise);
-//        ctx.write(msg, promise);
     }
 
     @Override

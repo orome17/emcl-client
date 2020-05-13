@@ -9,7 +9,9 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -30,12 +32,23 @@ public class EMCLClientSocket implements EMCLClient {
             logger.info("[Net] Current socket's local port: " + socket.getLocalPort() + ", closed: " + socket.isClosed());
             // TODO: check if BufferedOutputStream is the right way.
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+//            DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             for (String message : messages) {
                 byte[] byteMessage = HexUtil.hexToBin(message);
                 out.write(byteMessage);
                 out.flush();
                 logger.info("[Net] message sent!");
             }
+            // block to read the response
+//            byte[] buffer = new byte[1000];
+//            while (true) {
+//                int size = in.read(buffer);
+//                if (size > 0) {
+//                    System.out.println(new String(buffer));
+//                    break;
+//                }
+//            }
+
             socketPool.returnObject(socket);
         } catch (IOException ex) {
             logger.error("Request Id: " + customerInformation.getRequestId() +

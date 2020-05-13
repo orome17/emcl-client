@@ -4,6 +4,8 @@ import com.safeway.emclclient.emcl.client.EMCLClient;
 import com.safeway.emclclient.emcl.model.CustomerInformation;
 import com.safeway.emclclient.emcl.utils.HexUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -49,11 +51,11 @@ public class EMCLClientNetty implements EMCLClient {
             bootstrap.remoteAddress(new InetSocketAddress(hostname, port));
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 protected void initChannel(SocketChannel socketChannel) {
-                    socketChannel.pipeline().addLast(new EMCLClientHandler());
+                    socketChannel.pipeline().addLast(new EMCLClientInboundHandler());
                 }
             });
-            //channelFuture = bootstrap.connect().sync();
-            //channelFuture.channel().closeFuture().sync();
+            channelFuture = bootstrap.connect();
+            channelFuture.channel().closeFuture();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +66,8 @@ public class EMCLClientNetty implements EMCLClient {
         logger.info("[Netty] Channel id: " + channelFuture.channel().id() + ", active: " + channelFuture.channel().isActive());
         for (String message : messages) {
             byte[] byteMessage = HexUtil.hexToBin(message);
-            channelFuture.channel().writeAndFlush(byteMessage);
+            ByteBuf bb = Unpooled.copiedBuffer(byteMessage);
+            channelFuture.channel().writeAndFlush(bb);
             logger.info("[Netty] message sent!");
         }
     }

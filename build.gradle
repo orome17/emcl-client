@@ -16,6 +16,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile "org.springframework.integration:spring-integration-ip:4.2.1.RELEASE"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
     compile group: 'commons-pool', name: 'commons-pool', version: '1.5.4'

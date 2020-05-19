@@ -32,22 +32,23 @@ public class EMCLClientSocket implements EMCLClient {
             logger.info("[Net] Current socket's local port: " + socket.getLocalPort() + ", closed: " + socket.isClosed());
             // TODO: check if BufferedOutputStream is the right way.
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-//            DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             for (String message : messages) {
                 byte[] byteMessage = HexUtil.hexToBin(message);
                 out.write(byteMessage);
                 out.flush();
                 logger.info("[Net] message sent!");
+
+                // block to read the response
+                byte[] buffer = new byte[200];
+                while (true) {
+                    int size = in.read(buffer);
+                    if (size > 0) {
+                        logger.info("[Net] EMCL response: " + new String(buffer));
+                        break;
+                    }
+                }
             }
-            // block to read the response
-//            byte[] buffer = new byte[1000];
-//            while (true) {
-//                int size = in.read(buffer);
-//                if (size > 0) {
-//                    System.out.println(new String(buffer));
-//                    break;
-//                }
-//            }
 
             socketPool.returnObject(socket);
         } catch (IOException ex) {

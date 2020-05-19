@@ -54,8 +54,8 @@ public class EMCLClientNetty implements EMCLClient {
                     socketChannel.pipeline().addLast(new EMCLClientInboundHandler());
                 }
             });
-            channelFuture = bootstrap.connect();
-            channelFuture.channel().closeFuture();
+//            channelFuture = bootstrap.connect();
+//            channelFuture.channel().closeFuture();
         } catch (Exception e) {
             e.printStackTrace();
         }

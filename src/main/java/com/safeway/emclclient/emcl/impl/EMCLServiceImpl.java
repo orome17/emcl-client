@@ -2,7 +2,8 @@ package com.safeway.emclclient.emcl.impl;
 
 import com.safeway.emclclient.emcl.EMCLService;
 import com.safeway.emclclient.emcl.client.EMCLClient;
-import com.safeway.emclclient.emcl.client.EMCLClientFactory;
+import com.safeway.emclclient.emcl.dto.EMCLLookUpRequest;
+import com.safeway.emclclient.emcl.dto.EMCLLookUpResponse;
 import com.safeway.emclclient.emcl.dto.UpdateCustomerProfileDTO;
 import com.safeway.emclclient.emcl.mapper.EMCLCustomerInformationMapper;
 import com.safeway.emclclient.emcl.model.CustomerInformation;
@@ -21,13 +22,17 @@ public class EMCLServiceImpl implements EMCLService {
     private EMCLMessageBuilder messageBuilder;
 
     @Autowired
-    private EMCLClientFactory emclClientFactory;
+    EMCLClient emclClient;
 
     @Override
-    public void customerUpdate(UpdateCustomerProfileDTO updateCustomerProfile) {
+    public void customerUpdate(UpdateCustomerProfileDTO updateCustomerProfile) throws Exception{
         CustomerInformation customerInformation = mapper.convertToCustomerInformation(updateCustomerProfile);
         List<String> messages = messageBuilder.buildT5Message(customerInformation);
-        EMCLClient emclClient = emclClientFactory.getInstance();
-        emclClient.sendMessages(customerInformation, messages);
+        emclClient.updateCustomerInformation(messages);
+    }
+
+    @Override
+    public EMCLLookUpResponse lookUpByPhoneOrClubcrad(EMCLLookUpRequest emclLookUpRequest) throws Exception {
+        return emclClient.lookUpEmcl(emclLookUpRequest);
     }
 }

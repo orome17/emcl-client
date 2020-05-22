@@ -8,12 +8,11 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
                            http://www.springframework.org/schema/integration/ip http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd">
-
-    <context:property-placeholder location="classpath:application.properties" order="5" ignore-unresolvable="true" />
+    <context:property-placeholder/>
     <!-- Client side -->
 
     <int:gateway id="gw"
-                 service-interface="com.safeway.app.iass.emcl.gateway.EmclGateway"
+                 service-interface="com.safeway.emclclient.emcl.client.Gateway"
                  default-request-channel="input"/>
 
     <!-- Create a connection for the client gateway that uses the same Stx-Etx deserializer to turn the stream
@@ -22,33 +21,41 @@
     to be sent is wrapped by the Stx and Etx bytes. -->
     <int-ip:tcp-connection-factory id="client"
                                    type="client"
-                                   host="${emcl.server.hostname}"
-                                   port="${emcl.server.port}"
+                                   host="127.0.0.1"
+                                   port="7001"
                                    single-use="true"
-                                   so-timeout="${emcl.client.connection.so-timeout}"
+                                   so-timeout="10000"
                                    so-keep-alive="true"
-                                   deserializer="customT1Deserializer"/>
+                                   serializer="connectionSerializeDeserialize"
+                                   deserializer="connectionSerializeDeserialize"/>
+    <!--net-connection-support="defaultTcpNetConnectionSupport"-->
+
+    <!--<bean id="defaultTcpNetConnectionSupport" class="org.springframework.integration.ip.tcp.connection.DefaultTcpNetConnectionSupport">
+        <property name="pushbackCapable" value="true"/>
+    </bean>-->
 
     <int:channel id="input"/>
 
     <bean id="cachingConnectionFactory"
           class="org.springframework.integration.ip.tcp.connection.CachingClientConnectionFactory">
         <constructor-arg ref="client"/>
-        <constructor-arg value="${emcl.client.connection.poolsize}"/>
-        <property name="connectionWaitTimeout" value="${emcl.client.connection.connectionWaitTimeout}"/>
+        <constructor-arg value="10"/>
+        <property name="connectionWaitTimeout" value="10000"/>
     </bean>
 
     <int-ip:tcp-outbound-gateway id="outGateway"
                                  request-channel="input"
                                  reply-channel="clientBytes2StringChannel"
                                  connection-factory="cachingConnectionFactory"
-                                 request-timeout="${emcl.client.connection.request-timeout}"
-                                 reply-timeout="${emcl.client.connection.reply-timeout}"/>
+                                 request-timeout="10000"
+                                 reply-timeout="10000"/>
 
     <int:channel id="clientBytes2StringChannel"/>
 
     <int:object-to-string-transformer id="clientBytes2String"
                                       input-channel="clientBytes2StringChannel"/>
+
+    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />
 
 
 </beans>

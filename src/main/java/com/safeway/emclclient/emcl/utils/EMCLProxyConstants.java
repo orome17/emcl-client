@@ -31,4 +31,8 @@ public class EMCLProxyConstants {
     public static String HOUSEHOLD_EVENT = "HouseholdAssociateEvent";
     public static String CARDLESS_REGISTRATION_SMS_EVENT = "CardlessRegistrationSMSSentEvent";
     public static String REGISTRATION_REMINDER_SMS_EVENT = "CustomerRegistrationReminderSMSSentEvent";
+
+    public static String DEFAULT_SECONDARY_ENTRY_CODE = "S";
+    public static short T1_MSG_TYPE = 1;
+
 }

@@ -1,7 +1,8 @@
 package com.safeway.emclclient.controller;
 
 import com.safeway.emclclient.emcl.EMCLService;
-
+import com.safeway.emclclient.emcl.dto.EMCLLookUpRequest;
+import com.safeway.emclclient.emcl.dto.EMCLLookUpResponse;
 import com.safeway.emclclient.emcl.dto.ErrorDTO;
 import com.safeway.emclclient.emcl.dto.UpdateCustomerProfileDTO;
 import org.apache.commons.logging.Log;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("emcl")
@@ -50,4 +52,22 @@ public class EMCLProxyController {
         error.setTimestamp(System.currentTimeMillis());
         return error;
     }
+
+    @RequestMapping(value = "/lookup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<Object> lookUp(
+            @RequestBody @Valid EMCLLookUpRequest emclLookUpRequest,
+            HttpServletRequest request) {
+        logger.debug("lookUp request received with " +
+                             "phoneNumber : " + emclLookUpRequest.getPhoneNumber() +
+                             " and clubCradNumber :" + emclLookUpRequest.getClubCardNumber());
+        EMCLLookUpResponse emclLookUpResponse = null;
+        try {
+            emclLookUpResponse = emclService.lookUpByPhoneOrClubcrad(emclLookUpRequest);
+        } catch (Exception ex) {
+            logger.error(ex);
+            return new ResponseEntity<>(buildError(ex, request), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.ok(emclLookUpResponse);
+    }
+
 }

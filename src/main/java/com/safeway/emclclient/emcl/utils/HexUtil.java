@@ -1,8 +1,10 @@
 package com.safeway.emclclient.emcl.utils;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class HexUtil {
     public static byte[] hexToBin(String str) {
@@ -62,5 +64,50 @@ public class HexUtil {
             sb.append((char) decimal);
         }
         return StringUtils.trim(sb.toString());
+    }
+
+    public static String convertHexToDecimal(List<String> byteList) {
+        if (CollectionUtils.isEmpty(byteList)){
+            return StringUtils.EMPTY;
+        }
+        StringBuilder decimalValueBuilder = new StringBuilder("");
+        /*if (byteList.size() == 2) {
+            decimalValueBuilder.append(byteList.get(1));
+            decimalValueBuilder.append(byteList.get(0));
+        } else if (byteList.size() == 4) {
+            decimalValueBuilder.append(byteList.get(3));
+            decimalValueBuilder.append(byteList.get(2));
+            decimalValueBuilder.append(byteList.get(1));
+            decimalValueBuilder.append(byteList.get(0));
+        }*/
+        for (int i = byteList.size()-1; i>=0; i--){
+            decimalValueBuilder.append(byteList.get(i));
+        }
+        int decimalValue = new BigInteger(decimalValueBuilder.toString(), 16).intValue();
+        return String.valueOf(decimalValue);
+
+    }
+
+    public static int convertHexToDecimal(String byteStr) {
+        int decimalValue = new BigInteger(byteStr, 16).intValue();
+        return decimalValue;
+    }
+
+    public static String bin2hex(byte[] in) {
+        StringBuilder sb = new StringBuilder(in.length * 2);
+        for (byte b : in) {
+            sb.append(
+                    forDigit((b & 0xF0) >> 4)
+            ).append(
+                    forDigit(b & 0xF)
+            );
+        }
+        return sb.toString();
+    }
+    public static char forDigit(int digit) {
+        if (digit < 10) {
+            return (char) ('0' + digit);
+        }
+        return (char) ('A' - 10 + digit);
     }
 }
